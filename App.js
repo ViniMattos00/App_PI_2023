@@ -1,4 +1,3 @@
-GABRIEL
 import React from 'react';
 import { View, Text, SafeAreaView, StyleSheet, TouchableOpacity } from 'react-native';
 
