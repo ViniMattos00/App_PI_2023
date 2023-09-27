@@ -1,47 +1,164 @@
-import React from 'react';
-import { View, Text, SafeAreaView, StyleSheet, TouchableOpacity } from 'react-native';
+import React, {useState, useEffect} from 'react';
+import { 
+  StyleSheet, 
+  Text, 
+  TouchableOpacity, 
+  TextInput, 
+  View,
+  KeyboardAvoidingView, 
+  Animated,
+  Keyboard
+} from 'react-native';
 
 export default function App() {
-  return (
-    <SafeAreaView style={styles.container}>
-      <View style={styles.buttonContainer}>
-        <TouchableOpacity style={styles.button} onPress={() => console.log('Button 1 pressed')}>
-          <Text style={styles.buttonText}>Button 1</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.button} onPress={() => console.log('Button 2 pressed')}>
-          <Text style={styles.buttonText}>Button 2</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.button} onPress={() => console.log('Button 3 pressed')}>
-          <Text style={styles.buttonText}>Button 3</Text>
-        </TouchableOpacity>
-      </View>
-    </SafeAreaView>
-  );
-}
+
+  const [offset] = useState(new Animated.ValueXY({x:0, y:95}));
+  const [opacity] =useState(new Animated.Value(0));
+  const [logo] = useState(new Animated.ValueXY({x:170, y:155}))
+
+  useEffect(() => {
+    const keyboardDidShowListener = Keyboard.addListener('keyboardDidShow', keyboardDidShow);
+    const keyboardDidHideListener = Keyboard.addListener('keyboardDidHide', keyboardDidHide);
+
+    Animated.parallel([
+      Animated.spring(offset.y, {
+        toValue: 0,
+        speed: 4,
+        bounciness: 20,
+        useNativeDriver: true,
+      }),
+      Animated.timing(opacity, {
+        toValue: 1,
+        duration: 200,
+        useNativeDriver: true,
+      })
+    ]).start();
+
+    return () => {
+      keyboardDidShowListener.remove();
+      keyboardDidHideListener.remove();
+    };
+    
+  }, []);
+
+  function keyboardDidShow(){
+    Animated.parallel([
+      Animated.timing(logo.x, {
+        toValue: 55,
+        duration: 100,
+        useNativeDriver: true
+      }),
+      Animated.timing(logo.y, {
+        toValue: 65,
+        duration: 100,
+        useNativeDriver: true
+      }),
+    ]).start();
+  }
+
+  function keyboardDidHide(){
+    Animated.parallel([
+      Animated.timing(logo.x, {
+        toValue: 130,
+        duration: 100,
+        useNativeDriver: true
+      }),
+      Animated.timing(logo.y, {
+        toValue: 155,
+        duration: 100,
+        useNativeDriver: true
+      }),
+    ]).start();
+  }
+
+    return (
+      <KeyboardAvoidingView style={styles.background}>
+        <View style={styles.containerLogo}>
+          <Animated.Image
+          style={{
+            width: logo.x,
+            height: logo.y,
+          }}
+            source={require('./assets/marca.png')}
+          />
+        </View>
+  
+        <Animated.View style={[styles.container, {
+          opacity: opacity,
+          transform: [
+            {translateY: offset.y}
+          ]
+        }]}>
+          <TextInput
+          style={styles.input}
+          placeholder="Email"
+          autoCorrect={false}
+          onChangeText={() => {}}
+          />
+  
+          <TextInput
+          style={styles.input}
+          placeholder="Senha"
+          autoCorrect={false}
+          onChangeText={() => {}}
+          />
+  
+          <TouchableOpacity style={styles.btnSubmit}>
+            <Text style={styles.submitText}>Acessar</Text>
+          </TouchableOpacity>
+          
+          <TouchableOpacity style={styles.btnRegister}>
+            <Text style={styles.registerText}>Criar Conta</Text>
+          </TouchableOpacity>
+  
+        </Animated.View>
+      </KeyboardAvoidingView>
+    );
+  }
 
 const styles = StyleSheet.create({
+  background: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#191919',
+  },
+  containerLogo: {
+    flex: 1,
+    justifyContent: 'center',
+  },
   container: {
     flex: 1,
-    backgroundColor: 'black',
     alignItems: 'center',
     justifyContent: 'center',
+    width: '90%',
+    paddingBottom: 50,
   },
-  buttonContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
+  input: {
+    backgroundColor: '#fff',
+    width: '90%',
+    marginBottom: 15,
+    color:'#222',
+    fontSize: 17,
+    borderRadius: 7,
+    padding: 10,
+  },
+  btnSubmit: {
+    backgroundColor: '#35aaff',
+    width: '90%',
+    height: 45,
     alignItems: 'center',
-    width: '100%',
-  },
-  button: {
-    width: 100,
-    height: 100,
-    backgroundColor: 'white',
     justifyContent: 'center',
-    alignItems: 'center',
-    borderRadius: 10,
-  },
-  buttonText: {
+    borderRadius: 7,
+  }, 
+  submitText: {
+    color: '#fff',
     fontSize: 18,
-    fontWeight: 'bold',
+  }, 
+  btnRegister: {
+    marginTop: 10,
   },
+  registerText: {
+    color: '#fff'
+  }
 });
