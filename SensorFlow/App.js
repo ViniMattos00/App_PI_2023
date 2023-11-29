@@ -1,22 +1,42 @@
-// BackupApp.js
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { View, SafeAreaView } from 'react-native';
 import MultiLineChart from './components/MultiLineChart';
 
-export default function App() {
-  const dataSets = [
-    { data: [10, 15, 7, 20, 12, 18], labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'] },
-    { data: [5, 10, 15, 5, 20, 8], labels: ['A', 'B', 'C', 'D', 'E', 'F'] },
-    { data: [8, 12, 16, 10, 5, 20], labels: ['X', 'Y', 'Z', 'P', 'Q', 'R'] },
-    { data: [15, 18, 12, 10, 7, 25], labels: ['One', 'Two', 'Three', 'Four', 'Five', 'Six'] },
-    { data: [3, 6, 9, 12, 15, 18], labels: ['Alpha', 'Beta', 'Gamma', 'Delta', 'Epsilon', 'Zeta'] },
-    { data: [20, 15, 10, 5, 10, 15], labels: ['Apple', 'Banana', 'Cherry', 'Date', 'Elderberry', 'Fig'] },
-    { data: [12, 8, 15, 20, 5, 10], labels: ['Red', 'Green', 'Blue', 'Yellow', 'Purple', 'Orange'] },
-    { data: [6, 12, 18, 24, 30, 36], labels: ['Sun', 'Mercury', 'Venus', 'Earth', 'Mars', 'Jupiter'] },
-    { data: [30, 25, 20, 15, 10, 5], labels: ['Cat', 'Dog', 'Fish', 'Bird', 'Hamster', 'Turtle'] },
-    // Add more datasets as needed
-  ];
+const App = () => {
+  const [dataSets, setDataSets] = useState([]);
 
+  useEffect(() => {
+    fetchData();
+  }, []);
+
+  const fetchData = async () => {
+    try {
+      //const response = await fetch('http://localhost:3000/getData');
+      const response = await fetch('http://192.168.56.1:3000/getData');
+      //const response = await fetch('http://127.0.0.1:3000/getData');
+      const data = await response.json();
+  
+      // Transform the data to the desired format
+      const formattedData = {
+        dataSets: [
+          {
+            data: data.map(item => item.emw_temperature),
+            labels: data.map((item, index) => (index + 1).toString()),
+          },
+          // You can add more datasets as needed
+        ],
+      };
+      
+  
+      setDataSets(formattedData.dataSets);
+      console.log(dataSets);
+    } catch (error) {
+      console.error('Error fetching data', error);
+    }
+  };
+  
+  
+  
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: 'black' }}>
       <View style={{ flex: 1 }}>
@@ -24,4 +44,6 @@ export default function App() {
       </View>
     </SafeAreaView>
   );
-}
+};
+
+export default App;
